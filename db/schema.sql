@@ -1,0 +1,6 @@
+-- TABLE 1 : UTILISATEURS.
+
+
+-- TABLE 2 : MESSAGES.
+
+
