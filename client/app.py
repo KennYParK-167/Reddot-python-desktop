@@ -115,7 +115,38 @@ class App(tk.Tk):
 
 # APP/ LOGIN PAGE. [CONNEXION]
 class LoginPage(tk.Frame):
-    
+    def __init__(appc, app):
+        super().__init__(app, bg=BG_WHITE)
+        appc.app = app
+        tk.Label(appc, text="CONNEXION", font=("Segoe UI", 22, "bold"), fg=BTN_DARK, bg=BG_WHITE).pack(pady=(60, 30))
+        
+        container = tk.Frame(appc, bg=BG_WHITE)
+        container.pack(fill="x", padx=125, pady=10)
+
+        tk.Label(container, text="Nom d'utilisateur :", font=("Segoe UI", 11), fg=BTN_DARK, bg=BG_WHITE).pack(anchor="w", pady=(10,2))
+        cu, appc.u = UI.entry(container); cu.pack(fill="x", expand=True)
+        
+        tk.Label(container, text="Mot de passe :", font=("Segoe UI", 11), fg=BTN_DARK, bg=BG_WHITE).pack(anchor="w", pady=(15,2))
+        cp, appc.p = UI.entry(container, is_pwd=True); cp.pack(fill="x", expand=True)
+        
+        UI.btn(container, "Se connecter", BTN_DARK, appc.login, w=160).pack(anchor="w", pady=25)
+        
+        sep = tk.Frame(container, bg=INPUT_BG, height=1); sep.pack(fill="x", pady=15)
+        
+        f_inf = tk.Frame(container, bg=BG_WHITE)
+        f_inf.pack(anchor="w")
+        tk.Label(f_inf, text="Pas encore de compte ?", font=("Segoe UI", 11), fg=BTN_DARK, bg=BG_WHITE).pack(side="left", padx=(0,10))
+        UI.btn(f_inf, "S'inscrire", BTN_DARK, lambda: app.show_frame("RegisterPage"), w=110, h=35).pack(side="left")
+
+    def login(appc):
+        try:
+            c, res = api_request("POST", "/login", body={"username": appc.u.get(), "password": appc.p.get()})
+            if c == 200:
+                appc.app.token, appc.app.username, appc.app.role, appc.app.last_msg_id = res["access_token"], res.get("username"), res.get("role"), 0
+                appc.app.show_frame("ChatPage")
+            else: messagebox.showerror("Erreur", res.get("detail", "Identifiant ou mot de passe invalide."))
+        except Exception as e:
+            messagebox.showerror("Erreur de Connexion", str(e))
     
 # APP/ REGISTER PAGE. [INSCRIPTION]
 class RegisterPage(tk.Frame):
