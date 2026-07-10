@@ -4,7 +4,34 @@
 10. SUJET ARSB DE VEILLE TECHNOLOGIQUE POUR L1.  
 Theme : Chat en Ligne Simple.
 
-![Image du sujet](./assets/PXL_20260708_063848872.NIGHT.jpg)
+```markdown
+# Sujet 1 : Chat en Ligne Simple
+
+## Description
+Développement d'une application de messagerie instantanée permettant à plusieurs utilisateurs de communiquer en temps réel via un réseau local ou Internet. L'application repose sur une architecture client-serveur assurant l'échange des messages entre les utilisateurs connectés et intègre une base de données pour l'enregistrement des conversations avec horodatage des messages.
+
+---
+
+## Technologies
+* Python
+* Tkinter
+* Socket TCP
+* Threads
+* SQLite ou MySQL
+
+---
+
+## Fonctionnalités minimales
+* Connexion de plusieurs utilisateurs
+* Envoi et réception de messages en temps réel
+* Gestion d'un serveur central
+* Interface graphique simple et conviviale
+* Affichage des utilisateurs connectés
+* Enregistrement des messages dans une base de données
+* Horodatage automatique des conversations
+* Consultation de l'historique des discussions
+* Gestion des utilisateurs connectés
+```
 
 > Une application de chat commune, sobre, minimaliste contenant qu'un salon pour tout les utilisateurs. <br /> <br />
 > ![Image de reprensentation du projet](./assets/Capture%20d'écran%202026-07-09%20144532.png)
