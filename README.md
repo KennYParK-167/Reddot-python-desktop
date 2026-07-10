@@ -8,7 +8,12 @@ Theme : Chat en Ligne Simple.
 # Sujet 1 : Chat en Ligne Simple
 
 ## Description
-Développement d'une application de messagerie instantanée permettant à plusieurs utilisateurs de communiquer en temps réel via un réseau local ou Internet. L'application repose sur une architecture client-serveur assurant l'échange des messages entre les utilisateurs connectés et intègre une base de données pour l'enregistrement des conversations avec horodatage des messages.
+Développement d'une application de messagerie instantanée permettant  
+à plusieurs utilisateurs de communiquer en temps réel via un réseau  
+local ou Internet. L'application repose sur une architecture  
+client-serveur assurant l'échange des messages entre les utilisateurs  
+connectés et intègre une base de données pour l'enregistrement des  
+conversations avec horodatage des messages.
 
 ---
 
