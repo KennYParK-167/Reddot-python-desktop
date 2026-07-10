@@ -46,3 +46,49 @@ def ensure_api() -> bool:
                     except: pass
             except: pass
     return False
+
+
+# COMPOSANTS BRR/
+class UI:
+    @staticmethod
+    def draw_round_rect(canvas, x1, y1, x2, y2, radius, fill):
+        # CALCUL FAIT PAR IA.
+        points = [
+            x1+radius, y1, x1+radius, y1, x2-radius, y1, x2-radius, y1, x2, y1,
+            x2, y1+radius, x2, y1+radius, x2, y2-radius, x2, y2-radius, x2, y2,
+            x2-radius, y2, x2-radius, y2, x1+radius, y2, x1+radius, y2, x1, y2,
+            x1, y2-radius, x1, y2-radius, x1, y1+radius, x1, y1+radius, x1, y1
+        ]
+        return canvas.create_polygon(points, fill=fill, smooth=True, outline="")
+
+    @staticmethod
+    def entry(p, is_pwd=False, h=40):
+        c = tk.Canvas(p, height=h, bg=p["bg"], bd=0, highlightthickness=0)
+        e = tk.Entry(c, bg=INPUT_BG, fg="#191919", bd=0, highlightthickness=0, font=("Segoe UI", 11), show="*" if is_pwd else "")
+        
+        rect_id = None
+        win_id = c.create_window(0, 0, window=e, anchor="nw")
+
+        def resize(event):
+            nonlocal rect_id
+            w = event.width
+            rect_id = UI.draw_round_rect(c, 0, 0, w, h, 10, INPUT_BG)
+            c.coords(win_id, 10, h // 2)
+            c.itemconfigure(win_id, width=w - 20, anchor="w")
+
+        c.bind("<Configure>", resize)
+        return c, e
+
+    @staticmethod
+    def btn(p, txt, col, cmd, w=140, h=40, fg="#FFFFFF"):
+        c = tk.Canvas(p, width=w, height=h, bg=p["bg"], bd=0, highlightthickness=0, cursor="hand2")
+        UI.draw_round_rect(c, 0, 0, w, h, 10, col)
+        c.create_text(w//2, h//2, text=txt, fill=fg, font=("Segoe UI", 11, "bold"), tags="btn_text")
+        c.bind("<Button-1>", lambda _: cmd())
+        
+        def recolor(new_col, new_fg=None):
+            c.delete("all")
+            UI.draw_round_rect(c, 0, 0, w, h, 10, new_col)
+            c.create_text(w//2, h//2, text=txt, fill=new_fg if new_fg else fg, font=("Segoe UI", 11, "bold"), tags="btn_text")
+        c.recolor = recolor
+        return c
