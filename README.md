@@ -129,10 +129,10 @@ Page d'Administration :
 ## 📁 Structure du Projet  
 
 ├── /Reddot-python-desktop
-│   ├── Backups/        # Le backups fait par IA pour l'init du projet.
-│   ├── client/         # Contenant l'app principal. (app.py)
-│   ├── db/             # Gestion du SQL distant.
-│   └── server/         # Backend de l'app avec les method_fastapi.
+    ├── Backups/        # Le backups fait par IA pour l'init du projet.
+    ├── client/         # Contenant l'app principal. (app.py)
+    ├── db/             # Gestion du SQL distant.
+    └── server/         # Backend de l'app avec les method_fastapi.
 ```
 
 <br />
