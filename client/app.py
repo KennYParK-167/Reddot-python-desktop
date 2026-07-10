@@ -29,3 +29,20 @@ def api_request(method: str, path: str, token: str = None, body: dict = None) ->
             try: return e.code, json.loads(e.read().decode())
             except: return e.code, {"detail": "Erreur SQL/Serveur."}
         raise ConnectionError("Echec du connexion au server.") from e
+    
+def ensure_api() -> bool:
+    try:
+        with urlopen(f"{API_BASE.rstrip('/')}/health", timeout=2): return True
+    except:
+        if "127.0.0.1" in API_BASE or "localhost" in API_BASE:
+            s_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "server"))
+            try:
+                subprocess.Popen([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
+                                 cwd=s_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                for _ in range(15):
+                    time.sleep(0.4)
+                    try:
+                        with urlopen(f"{API_BASE.rstrip('/')}/health", timeout=1): return True
+                    except: pass
+            except: pass
+    return False
