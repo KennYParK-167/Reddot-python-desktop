@@ -1,3 +1,5 @@
+# FICHIERS FAIT A LA MAIN MAIS AVEC L'AIDE DE L'IA. MAJORITAIREMENT SUR LES METHOD_FASTAPI.
+
 from __future__ import annotations
 
 import os

@@ -1,4 +1,4 @@
-@echo off
-echo "Lancement de l'App ... veuillez attendre !"
-cd client
-python app.py
+echo "==> Installation des dependances avant le lancement de l'application <=="
+cd server
+python -m pip install -r requirements.txt --user
+pause

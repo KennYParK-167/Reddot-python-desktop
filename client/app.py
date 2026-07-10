@@ -1,3 +1,8 @@
+# INITIAL CODE GENERER DANS LE /BACKUPS/app.py.IA.bak  --  ON A PRIS LES MODELES GENERER ET LES AI REMODELISER.
+# DESIGN FAIT AVEC TKINTER BUUILDER UI.
+# DESIGN FIGMA/PENPOT : https://design.penpot.app/#/workspace?team-id=511bd401-aa1d-80ff-8008-3373a9bae12e&file-id=f2b396a6-c4f1-8031-8008-4ccedff9943c&page-id=f2b396a6-c4f1-8031-8008-4ccedff9943d.
+
+
 from __future__ import annotations
 import os, sys, json, time, subprocess, tkinter as tk
 from tkinter import messagebox, scrolledtext
@@ -6,7 +11,7 @@ from urllib.request import Request, urlopen
 API_BASE = os.getenv("API_BASE", "http://127.0.0.1:8000")
 POLL_MS = 4000
 
-
+# COLORS.
 BG_WHITE = "#FFFFFF"
 INPUT_BG = "#EAEAEA"
 BTN_DARK = "#191919"
