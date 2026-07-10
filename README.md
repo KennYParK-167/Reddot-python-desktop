@@ -36,19 +36,19 @@ Page d'inscription :
 <br />
 <br />
 
-Page de Connexion : 
+Page de Connexion :  
 ![Connexon Page :](./assets/Capture%20d'écran%202026-07-09%20131800.png)
 
 <br />
 <br />
 
-Page de Discussion : 
+Page de Discussion :  
 ![Chat Page :](./assets/Capture%20d'écran%202026-07-09%20131843.png)
 
 <br />
 <br />
 
-Page d'Administration : 
+Page d'Administration :  
 ![Admin Page :](./assets/Capture%20d'écran%202026-07-09%20131830.png)
 
 <br />
