@@ -216,7 +216,7 @@ class ChatPage(tk.Frame):
         appc.box = scrolledtext.ScrolledText(appc, state="disabled", wrap="word", bg=BG_WHITE, bd=0, highlightthickness=0)
         appc.box.pack(fill="both", expand=True, padx=20, pady=10)
 
-        def on_show(appc):
+    def on_show(appc):
         role_clean = appc.app.role.capitalize() if appc.app.role else 'User'
         appc.lbl_usr.config(text=f"{appc.app.username} - {role_clean}")
         
@@ -251,10 +251,149 @@ class ChatPage(tk.Frame):
         UI.draw_round_rect(dummy, 0, 0, w, h, 10, bg_color)
         dummy.create_window(w//2, h//2, window=lbl, width=w-24, height=h-16)
         return dummy
-    
-    
+
+
+    #  FETCH LES MESSAGE. []
+    def fetch(appc):
+        try:
+            c, res = api_request("GET", f"/messages?since_id={appc.app.last_msg_id}", appc.app.token)
+            if c == 200 and res:
+                has_new = False
+                for m in res:
+                    if m["id"] not in appc.fetched_ids:
+                        if not has_new:
+                            appc.box.config(state="normal")
+                            has_new = True
+                        
+                        appc.fetched_ids.add(m["id"])
+                        if m["id"] > appc.app.last_msg_id:
+                            appc.app.last_msg_id = m["id"]
+                        
+                        is_me = (m["username"] == appc.app.username)
+                        sender_name = m["username"]
+                        
+                        if is_me and appc.app.role:
+                            role_name = appc.app.role.capitalize()
+                        else:
+                            role_name = m.get('role', 'User').capitalize()
+                            
+                        bg_bubble = BLUE_MSG if is_me else GRAY_MSG
+                        
+                        appc.box.insert("end", f"{sender_name} - {role_name}\n", "header_tag")
+                        bubble_widget = appc.make_bubble_widget(m['message_text'], bg_bubble)
+                        appc.box.window_create("end", window=bubble_widget)
+                        appc.box.insert("end", "\n")
+                        t_str = m.get('timestamp', 'Date - Heure')
+                        appc.box.insert("end", f"[ {t_str} ]\n\n", "time_tag")
+                
+                if has_new:
+                    appc.box.tag_config("header_tag", font=("Segoe UI", 11, "bold"), foreground=BTN_DARK, spacing3=4)
+                    appc.box.tag_config("time_tag", font=("Segoe UI", 10), foreground=BTN_DARK, spacing1=4)
+                    appc.box.config(state="disabled")
+                    appc.box.see("end")
+        except: pass
+
+    def tick(appc):
+        if appc.winfo_viewable(): appc.fetch(); appc._pid = appc.after(POLL_MS, appc.tick)
+
+
+
+
 # APP/ ADMIN PAGE. [PAGE D'ADMINISTRATION]
 class AdminPage(tk.Frame):
+    def __init__(appc, app):
+        super().__init__(app, bg=BG_WHITE); appc.app = app
+        
+        appc.hd = tk.Frame(appc, bg=HEADER_BG, height=85)
+        appc.hd.pack(fill="x", side="top")
+        appc.hd.pack_propagate(False)
+        
+        lbl_f = tk.Frame(appc.hd, bg=HEADER_BG)
+        lbl_f.pack(side="left", padx=20, pady=12)
+        tk.Label(lbl_f, text="Admin Page", font=("Segoe UI", 20, "bold"), fg=BG_WHITE, bg=HEADER_BG).pack(anchor="w")
+        appc.lbl_usr = tk.Label(lbl_f, text="", font=("Segoe UI", 12, "bold"), fg=BG_WHITE, bg=HEADER_BG)
+        appc.lbl_usr.pack(anchor="w", pady=(2, 0))
+        
+        UI.btn(appc.hd, "Retour au Salon", BG_WHITE, lambda: app.show_frame("ChatPage"), w=150, h=38, fg=BTN_DARK).pack(side="right", padx=20, pady=22)
+        
+        appc.tabs_f = tk.Frame(appc, bg=BG_WHITE)
+        appc.tabs_f.pack(fill="x", padx=20, pady=(15, 5))
+        
+        appc.b_u = UI.btn(appc.tabs_f, "Utilisateurs", BTN_DARK, appc.show_users, w=120, h=35, fg=BG_WHITE)
+        appc.b_u.pack(side="left", padx=(0, 10))
+        appc.b_m = UI.btn(appc.tabs_f, "Messages", "#5C5C5C", appc.show_msgs, w=120, h=35, fg=BG_WHITE)
+        appc.b_m.pack(side="left")
+        
+        appc.content_f = tk.Frame(appc, bg=BG_WHITE)
+        appc.content_f.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        appc.list_bg = tk.Canvas(appc.content_f, bg=BG_WHITE, bd=0, highlightthickness=0)
+        appc.list_bg.pack(side="left", fill="both", expand=True)
+        
+        appc.list_box = tk.Listbox(appc.list_bg, bg=GRAY_MSG, bd=0, highlightthickness=0, font=("Segoe UI", 11), fg=BTN_DARK, selectbackground=BLUE_MSG, selectforeground=BTN_DARK)
+        appc.list_bg.bind("<Configure>", appc._resize_list_bg)
+        
+        appc.btn_del_f = tk.Frame(appc.content_f, bg=BG_WHITE)
+        appc.btn_del_f.pack(side="right", fill="y", padx=(15, 0))
+        UI.btn(appc.btn_del_f, "Supprimer", BTN_RED, appc.delete_item, w=120, h=40, fg=BG_WHITE).pack(side="bottom", pady=(0, 5))
+        
+        appc.mode = "users"; appc.items = []
+
+    def _resize_list_bg(appc, event):
+        w, h = event.width, event.height
+        appc.list_bg.delete("all")
+        UI.draw_round_rect(appc.list_bg, 0, 0, w, h, 10, GRAY_MSG)
+        appc.list_bg.create_window(w//2, h//2, window=appc.list_box, width=w-20, height=h-20)
+
+    def on_show(appc):
+        role_clean = appc.app.role.capitalize() if appc.app.role else 'User'
+        appc.lbl_usr.config(text=f"{appc.app.username} - {role_clean}")
+        appc.show_users()
+        
+    def show_users(appc):
+        appc.mode = "users"
+        appc.b_u.recolor(BTN_DARK, BG_WHITE)
+        appc.b_m.recolor("#5C5C5C", BG_WHITE)
+        
+        try:
+            c, res = api_request("GET", "/admin/users", appc.app.token)
+            if c == 200:
+                appc.list_box.delete(0, "end"); appc.items = res
+                for u in res: 
+                    appc.list_box.insert("end", f"  #{u['id']}  {u['username']} ({u['role'].capitalize() if u.get('role') else 'User'})")
+        except Exception as e:
+            appc.list_box.delete(0, "end")
+            appc.list_box.insert("end", " Erreur : Impossible de joindre la base de données MySQL sur le serveur.")
+
+    def show_msgs(appc):
+        appc.mode = "messages"
+        appc.b_u.recolor("#5C5C5C", BG_WHITE)
+        appc.b_m.recolor(BTN_DARK, BG_WHITE)
+        
+        try:
+            c, res = api_request("GET", "/admin/messages?limit=100", appc.app.token)
+            if c == 200:
+                appc.list_box.delete(0, "end"); appc.items = res
+                for m in res: 
+                    is_me = (m["username"] == appc.app.username)
+                    if is_me and appc.app.role:
+                        m_role = appc.app.role.capitalize()
+                    else:
+                        m_role = m.get('role', 'User').capitalize()
+                    appc.list_box.insert("end", f"  #{m['id']}  {m['username']} ({m_role}): {m['message_text']}")
+        except Exception as e:
+            appc.list_box.delete(0, "end")
+
+    def delete_item(appc):
+        if not appc.list_box.curselection() or appc.list_box.get(appc.list_box.curselection()[0]).startswith(" Erreur"): return
+        item = appc.items[appc.list_box.curselection()[0]]
+        path = f"/admin/users/{item['id']}" if appc.mode == "users" else f"/admin/messages/{item['id']}"
+        if messagebox.askyesno("Suppression", "Veuillez confimrer la suppression ?"):
+            try:
+                if api_request("DELETE", path, appc.app.token)[0] in (200, 204):
+                    appc.show_users() if appc.mode == "users" else appc.show_msgs()
+            except Exception as e:
+                messagebox.showerror("Erreur", str(e))
 
 
 
