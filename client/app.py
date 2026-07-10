@@ -9,7 +9,7 @@ from tkinter import messagebox, scrolledtext
 from urllib.request import Request, urlopen
 
 API_BASE = os.getenv("API_BASE", "http://127.0.0.1:8000")
-POLL_MS = 4000
+POLL_MS = 5000 # TIME REFRESH. 5S
 
 # COLORS.
 BG_WHITE = "#FFFFFF"
