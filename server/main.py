@@ -76,3 +76,67 @@ def get_db() -> Session:
         yield db
     finally:
         db.close()
+
+
+
+# JWT: FAIT PAR IA.
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+
+
+def hash_password(password: str) -> str:
+    pw_bytes = password.encode("utf-8")
+    if len(pw_bytes) > 72:
+        raise HTTPException(
+            status_code=400,
+            detail="Mot de passe trop long (bcrypt <= 72 octets).",
+        )
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(pw_bytes, salt)
+    return hashed.decode("utf-8")
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    pw_bytes = password.encode("utf-8")
+    return bcrypt.checkpw(pw_bytes, password_hash.encode("utf-8"))
+
+
+def create_access_token(*, subject: str, role: str, user_id: int) -> str:
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {
+        "sub": subject,
+        "role": role,
+        "uid": user_id,
+        "iat": int(now.timestamp()),
+        "exp": int(expire.timestamp()),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGO)
+
+class AuthUser(BaseModel):
+    id: int
+    username: str
+    role: str
+
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> AuthUser:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
+        username: str = payload.get("sub")
+        role: str = payload.get("role")
+        uid: int = payload.get("uid")
+        if not username or not role or not uid:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalide")
+    except JWTError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalide") from e
+
+    user = db.scalar(select(User).where(User.id == uid))
+    if not user or user.username != username:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Utilisateur introuvable")
+
+    return AuthUser(id=user.id, username=user.username, role=user.role)
+
+
+def require_admin(current: AuthUser = Depends(get_current_user)) -> AuthUser:
+    if current.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Accès admin requis")
+    return current
