@@ -6,10 +6,8 @@ Theme : Chat en Ligne Simple.
 
 ![Image du sujet](./assets/PXL_20260708_063848872.NIGHT.jpg)
 
-> ___
 > Une application de chat commune, sobre, minimaliste contenant qu'un salon pour tout les utilisateurs. <br /> <br />
 > ![Image de reprensentation du projet](./assets/Capture%20d'écran%202026-07-09%20144532.png)
-> ___
 
 <br />
 
