@@ -150,6 +150,35 @@ class LoginPage(tk.Frame):
     
 # APP/ REGISTER PAGE. [INSCRIPTION]
 class RegisterPage(tk.Frame):
+    def __init__(appc, app):
+        super().__init__(app, bg=BG_WHITE)
+        appc.app = app
+        tk.Label(appc, text="INSCRIPTION", font=("Segoe UI", 22, "bold"), fg=BTN_DARK, bg=BG_WHITE).pack(pady=(50, 25))
+        
+        container = tk.Frame(appc, bg=BG_WHITE)
+        container.pack(fill="x", padx=125, pady=10)
+
+        tk.Label(container, text="Nom d'utilisateur :", font=("Segoe UI", 11), fg=BTN_DARK, bg=BG_WHITE).pack(anchor="w", pady=(5,2))
+        cu, appc.u = UI.entry(container); cu.pack(fill="x", expand=True)
+        
+        tk.Label(container, text="Mot de passe :", font=("Segoe UI", 11), fg=BTN_DARK, bg=BG_WHITE).pack(anchor="w", pady=(10,2))
+        cp, appc.p = UI.entry(container, is_pwd=True); cp.pack(fill="x", expand=True)
+        
+        tk.Label(container, text="Confirmation du Mot de Passe :", font=("Segoe UI", 11), fg=BTN_DARK, bg=BG_WHITE).pack(anchor="w", pady=(10,2))
+        ccp, appc.cp = UI.entry(container, is_pwd=True); ccp.pack(fill="x", expand=True)
+        
+        f_btn = tk.Frame(container, bg=BG_WHITE); f_btn.pack(anchor="w", pady=25)
+        UI.btn(f_btn, "S'inscrire", BTN_DARK, appc.reg, w=120).pack(side="left", padx=(0,15))
+        UI.btn(f_btn, "Retour", BTN_DARK, lambda: app.show_frame("LoginPage"), w=100).pack(side="left")
+
+    def reg(appc):
+        if appc.p.get() != appc.cp.get(): return messagebox.showwarning("Erreur", "Mots de passe différents")
+        try:
+            c, res = api_request("POST", "/register", body={"username": appc.u.get(), "password": appc.p.get()})
+            if c == 201: messagebox.showinfo("OK", "Compte créé !"); appc.app.show_frame("LoginPage")
+            else: messagebox.showerror("Erreur", res.get("detail", "Erreur"))
+        except Exception as e:
+            messagebox.showerror("Erreur de Connexion", str(e))
     
     
 # APP/ CHAT PAGE. [SALON DE DISCUSSION]
