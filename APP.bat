@@ -1,4 +1,5 @@
-echo "==> Installation des dependances avant le lancement de l'application <=="
+@echo off
+echo "==> Lancement ... Veuillez attendre ! <=="
 cd client
 python app.py
 pause
