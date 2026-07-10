@@ -126,9 +126,8 @@ Page d'Administration :
 ## Structure du Projet (Optionnel mais pro)
 
 ```markdown
-## 📁 Structure du Projet
+## 📁 Structure du Projet  
 
-```text
 ├── /Reddot-python-desktop
 │   ├── Backups/        # Le backups fait par IA pour l'init du projet.
 │   ├── client/         # Contenant l'app principal. (app.py)
