@@ -183,6 +183,74 @@ class RegisterPage(tk.Frame):
     
 # APP/ CHAT PAGE. [SALON DE DISCUSSION]
 class ChatPage(tk.Frame):
+    def __init__(appc, app):
+        super().__init__(app, bg=BG_WHITE); appc.app = app; appc._pid = None
+        appc.fetched_ids = set()
+        
+        appc.hd = tk.Frame(appc, bg=HEADER_BG, height=85)
+        appc.hd.pack(fill="x", side="top")
+        appc.hd.pack_propagate(False)
+        
+        lbl_f = tk.Frame(appc.hd, bg=HEADER_BG)
+        lbl_f.pack(side="left", padx=20, pady=12)
+        appc.lbl_title = tk.Label(lbl_f, text="Chat Page", font=("Segoe UI", 20, "bold"), fg=BG_WHITE, bg=HEADER_BG)
+        appc.lbl_title.pack(anchor="w")
+        appc.lbl_usr = tk.Label(lbl_f, text="", font=("Segoe UI", 12, "bold"), fg=BG_WHITE, bg=HEADER_BG)
+        appc.lbl_usr.pack(anchor="w", pady=(2, 0))
+        
+        appc.btn_deco = UI.btn(appc.hd, "Deconnexion", BTN_RED, appc.deco, w=130, h=38, fg=BG_WHITE)
+        appc.btn_deco.pack(side="right", padx=20, pady=22)
+        
+        appc.btn_adm = UI.btn(appc.hd, "Admin Page", BG_WHITE, lambda: app.show_frame("AdminPage"), w=130, h=38, fg=BTN_DARK)
+        
+        appc.bf = tk.Frame(appc, bg=BG_WHITE, height=70)
+        appc.bf.pack(fill="x", side="bottom", padx=20, pady=15)
+        
+        appc.ce, appc.e = UI.entry(appc.bf, h=45)
+        appc.ce.pack(side="left", fill="x", expand=True, padx=(0, 15))
+        appc.e.bind("<Return>", lambda _: appc.send())
+        
+        appc.btn_send = UI.btn(appc.bf, "Envoyer", BTN_DARK, appc.send, w=110, h=45, fg=BG_WHITE)
+        appc.btn_send.pack(side="right")
+        
+        appc.box = scrolledtext.ScrolledText(appc, state="disabled", wrap="word", bg=BG_WHITE, bd=0, highlightthickness=0)
+        appc.box.pack(fill="both", expand=True, padx=20, pady=10)
+
+        def on_show(appc):
+        role_clean = appc.app.role.capitalize() if appc.app.role else 'User'
+        appc.lbl_usr.config(text=f"{appc.app.username} - {role_clean}")
+        
+        if appc.app.role == "admin":
+            appc.btn_adm.pack(side="right", padx=5, pady=22)
+        else:
+            appc.btn_adm.pack_forget()
+            
+        if appc.app.last_msg_id == 0:
+            appc.fetched_ids.clear()
+            appc.box.config(state="normal"); appc.box.delete("1.0", "end"); appc.box.config(state="disabled")
+        appc.tick()
+
+    def deco(appc):
+        if appc._pid: appc.after_cancel(appc._pid)
+        appc.app.show_frame("LoginPage")
+
+    def send(appc):
+        if not appc.e.get().strip(): return
+        try:
+            if api_request("POST", "/messages", appc.app.token, {"message_text": appc.e.get()})[0] == 201:
+                appc.e.delete(0, "end"); appc.fetch()
+        except: pass
+
+    def make_bubble_widget(appc, text, bg_color):
+        dummy = tk.Canvas(appc.box, bg=BG_WHITE, bd=0, highlightthickness=0)
+        lbl = tk.Label(dummy, text=text, bg=bg_color, fg=BTN_DARK, font=("Segoe UI", 11), wraplength=380, justify="left")
+        lbl.update_idletasks()
+        tw, th = lbl.winfo_reqwidth(), lbl.winfo_reqheight()
+        w, h = max(tw + 24, 80), th + 16
+        dummy.config(width=w, height=h)
+        UI.draw_round_rect(dummy, 0, 0, w, h, 10, bg_color)
+        dummy.create_window(w//2, h//2, window=lbl, width=w-24, height=h-16)
+        return dummy
     
     
 # APP/ ADMIN PAGE. [PAGE D'ADMINISTRATION]
