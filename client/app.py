@@ -92,3 +92,45 @@ class UI:
             c.create_text(w//2, h//2, text=txt, fill=new_fg if new_fg else fg, font=("Segoe UI", 11, "bold"), tags="btn_text")
         c.recolor = recolor
         return c
+    
+    
+# APP/ TKINTER SOURCE.
+class App(tk.Tk):
+    def __init__(appc):
+        super().__init__()
+        appc.title("Reddot - Desktop"); appc.geometry("650x600"); appc.configure(bg=BG_WHITE)
+        appc.token = appc.username = appc.role = None
+        appc.last_msg_id = 0
+        appc.frames = {}
+        for F in (LoginPage, RegisterPage, ChatPage, AdminPage):
+            f = F(appc); appc.frames[F.__name__] = f; f.grid(row=0, column=0, sticky="nsew")
+        appc.columnconfigure(0, weight=1); appc.rowconfigure(0, weight=1)
+        appc.show_frame("LoginPage")
+
+    def show_frame(appc, name: str):
+        if hasattr(appc.frames.get(name), "on_show"): appc.frames[name].on_show()
+        appc.frames[name].tkraise()
+        
+
+
+# APP/ LOGIN PAGE. [CONNEXION]
+class LoginPage(tk.Frame):
+    
+    
+# APP/ REGISTER PAGE. [INSCRIPTION]
+class RegisterPage(tk.Frame):
+    
+    
+# APP/ CHAT PAGE. [SALON DE DISCUSSION]
+class ChatPage(tk.Frame):
+    
+    
+# APP/ ADMIN PAGE. [PAGE D'ADMINISTRATION]
+class AdminPage(tk.Frame):
+
+
+
+# FONCTION DE LANCEMENT. [LOOP DU TKINTER INTERFACE]
+if __name__ == "__main__":
+    ensure_api()
+    App().mainloop()
